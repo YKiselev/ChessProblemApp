@@ -8,10 +8,8 @@
 class ChessProblemApp(val figures: List[Byte], val width: Int, val height: Int) {
 
   private val length = width * height
-  //private var layouts: Int = 0
 
   def findLayouts() {
-    //combine(0, Nil, figures)
     println("\nTotal distinct layouts: " + combine(0, Nil, figures))
   }
 
@@ -36,14 +34,17 @@ class ChessProblemApp(val figures: List[Byte], val width: Int, val height: Int) 
         case ChessProblemApp.EMPTY =>
           combine(index + 1, field, figures)
         case f =>
-          placeFigure(f, field).map(v => combine(index + 1, v :: field, figures diff List(figure))).sum
+          placeFigure(f, field) match {
+            case None => 0
+            case Some(v) => combine(index + 1, v :: field, figures diff List(figure))
+          }
       }
     }
 
     if (index >= length) {
       1
     } else {
-      val result = figures.distinct.map(figure => tryFigure(figure)).sum
+      val result = figures.distinct.foldLeft(0)((result, figure) => result + tryFigure(figure))
       if (index + figures.size < length)
         result + tryFigure(ChessProblemApp.EMPTY)
       else
