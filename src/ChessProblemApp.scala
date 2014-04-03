@@ -8,15 +8,14 @@
 class ChessProblemApp(val figures: List[Byte], val width: Int, val height: Int) {
 
   private val length = width * height
-  private var layouts: Int = 0
+  //private var layouts: Int = 0
 
   def findLayouts() {
-    combine(0, Nil, figures)
-
-    println("\nTotal distinct layouts: " + layouts)
+    //combine(0, Nil, figures)
+    println("\nTotal distinct layouts: " + combine(0, Nil, figures))
   }
 
-  private def combine(index: Int, field: List[(Byte, Int, Int)], figures: List[Byte]) {
+  private def combine(index: Int, field: List[(Byte, Int, Int)], figures: List[Byte]): Int = {
 
     def placeFigure(figure: Byte, field: List[(Byte, Int, Int)]): Option[(Byte, Int, Int)] = field match {
       case h :: t =>
@@ -32,22 +31,23 @@ class ChessProblemApp(val figures: List[Byte], val width: Int, val height: Int) 
         Some(figure, index % width, index / width)
     }
 
-    def tryFigure(figure: Byte) {
+    def tryFigure(figure: Byte): Int = {
       figure match {
         case ChessProblemApp.EMPTY =>
           combine(index + 1, field, figures)
         case f =>
-          placeFigure(f, field).foreach(v => combine(index + 1, v :: field, figures diff List(figure)))
+          placeFigure(f, field).map(v => combine(index + 1, v :: field, figures diff List(figure))).sum
       }
     }
 
     if (index >= length) {
-      layouts += 1
+      1
     } else {
-      figures.distinct.foreach(figure => tryFigure(figure))
-      if (index + figures.size < length) {
-        tryFigure(ChessProblemApp.EMPTY)
-      }
+      val result = figures.distinct.map(figure => tryFigure(figure)).sum
+      if (index + figures.size < length)
+        result + tryFigure(ChessProblemApp.EMPTY)
+      else
+        result
     }
   }
 
