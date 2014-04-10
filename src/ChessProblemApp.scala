@@ -29,24 +29,18 @@ class ChessProblemApp(val figures: List[Byte], val width: Int, val height: Int) 
         Some(figure, index % width, index / width)
     }
 
-    def tryFigure(figure: Byte): Int = {
-      figure match {
-        case ChessProblemApp.EMPTY =>
-          combine(index + 1, field, figures)
-        case f =>
-          placeFigure(f, field) match {
-            case None => 0
-            case Some(v) => combine(index + 1, v :: field, figures diff List(figure))
-          }
+    def tryFigure(figure: Byte): Int =
+      placeFigure(figure, field) match {
+        case None => 0
+        case Some(v) => combine(index + 1, v :: field, figures diff List(figure))
       }
-    }
 
     if (index >= length) {
       1
     } else {
       val result = figures.distinct.foldLeft(0)((result, figure) => result + tryFigure(figure))
       if (index + figures.size < length)
-        result + tryFigure(ChessProblemApp.EMPTY)
+        result + combine(index + 1, field, figures)
       else
         result
     }
